@@ -22,5 +22,7 @@ namespace _02.Tests
             var result = analyzer.IsSafe(report);
             result.Should().Be(expected);
         }
+
+
     }
 }
