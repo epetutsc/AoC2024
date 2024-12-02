@@ -2,7 +2,7 @@
 
 namespace _01.Tests;
 
-public class DistinaceTests
+public class DistanceTests
 {
     [Theory]
     [InlineData(1, 3, 2)]
