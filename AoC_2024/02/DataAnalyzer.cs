@@ -11,20 +11,9 @@ namespace _02
         {
             if (!IsSafeInternal(report))
             {
-                var safe = false;
-                for (var i = 0; i < report.Count; i++)
-                {
-                    var arr = report.ToArray();
-                    var reducedReport = arr[..i].Concat(arr[(i + 1)..]).ToArray();
-
-                    if (IsSafeInternal(reducedReport))
-                    {
-                        safe = true;
-                        break;
-                    }
-                }
-
-                return safe;
+                return report
+                    .Select((_, i) => report.Take(i).Concat(report.Skip(i + 1)).ToArray())
+                    .Any(IsSafeInternal);
             }
 
             return true;
