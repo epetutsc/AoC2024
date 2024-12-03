@@ -14,18 +14,14 @@ public partial class InputReader(IFileSystem fileSystem)
     [GeneratedRegex(@"don't\(\)")]
     private static partial Regex Dont();
 
-    private readonly Regex _mul = Mul();
-    private readonly Regex _do = Do();
-    private readonly Regex _dont = Dont();
-
     public async Task<IReadOnlyList<(int, int)>> GetMultiplicationsAsync(string file)
     {
         var content = await fileSystem.File.ReadAllTextAsync(file);
 
-        var donts = _dont.Matches(content).Select(m => m.Index).ToList();
-        var dos = _do.Matches(content).Select(m => m.Index).ToList();
+        var donts = Dont().Matches(content).Select(m => m.Index).ToList();
+        var dos = Do().Matches(content).Select(m => m.Index).ToList();
 
-        return _mul
+        return Mul()
             .Matches(content)
             .Where(m => IsEnabled(m, dos, donts))
             .Select(match => (int.Parse(match.Groups[1].Value), int.Parse(match.Groups[2].Value)))
