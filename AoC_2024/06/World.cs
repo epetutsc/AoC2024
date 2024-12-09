@@ -5,15 +5,16 @@ public class World
     public Map Map { get; }
     public Guard Guard { get; }
 
-    private readonly List<(Position Position, char Direction)> _trace = new();
+    private readonly HashSet<(Position Position, char Direction)> _trace = new();
+    private readonly HashSet<Position> _obstructions = new();
     
     public World(string input)
     {
         Map = Map.FromString(input);
         Guard = new Guard(Map);
     }
-    
-    public World(string input, Position guardPosition, char direction)
+
+    private World(string input, Position guardPosition, char direction)
     {
         Map = Map.FromString(input);
         Guard = new Guard(guardPosition, direction);
@@ -21,17 +22,12 @@ public class World
 
     public StepResult Step()
     {
-        var nextField = Guard.PeekMove();
-        if (Map.IsOutOfBounds(nextField))
-        {
-            return StepResult.Finished;
-        }
-
-        if (_trace.Contains((nextField, Guard.Direction)))
+        if (!_trace.Add((Guard.Position, Guard.Direction)))
         {
             return StepResult.LoopDetected;
         }
         
+        var nextField = Guard.PeekMove();
         var ch = Map.Get(nextField);
         if (ch is '#')
         {
@@ -40,25 +36,32 @@ public class World
         }
 
         Guard.Move();
-        Map.Set(nextField, Guard.Direction);
-        _trace.Add((nextField, Guard.Direction));
-        
+        if (Map.IsOutOfBounds(Guard.Position))
+        {
+            return StepResult.Finished;
+        }
+
+        Map.Set(Guard.Position, Guard.Direction);
         return IsVisited(ch)
             ? StepResult.VisitedAlready
             : StepResult.Success;
     }
 
-    private bool CouldCreateLoop()
+    private void AddObstruction()
     {
         var clone = new World(Map.ToString(), Guard.Position, Guard.Direction);
         var nextField = clone.Guard.PeekMove();
         if (clone.Map.IsOutOfBounds(nextField))
         {
-            return false;
+            return;
         }
         
         clone.Map.Set(nextField, '#');
-        return clone.RunScout();
+        clone.Guard.Turn();
+        if (clone.RunScout())
+        {
+            _obstructions.Add(nextField);
+        }
     }
     
     private static bool IsVisited(char? ch)
@@ -68,19 +71,14 @@ public class World
 
     public (int Steps, int ObstructionPositions)? Run()
     {
-        var obstructions = 0;
         var counter = 0;
         while (true)
         {
-            if (CouldCreateLoop())
-            {
-                obstructions++;
-            }
-            
+            AddObstruction();
             var result = Step();
             //Console.WriteLine(Map.ToString());
-            Console.WriteLine(counter);
-            Console.WriteLine(obstructions);
+            //Console.WriteLine(counter);
+            //Console.WriteLine(_obstructions.Count);
             
             if (result == StepResult.LoopDetected)
             {
@@ -94,7 +92,7 @@ public class World
 
             if (result == StepResult.Finished)
             {
-                return (counter, obstructions);
+                return (counter, _obstructions.Count);
             }
         }
     }

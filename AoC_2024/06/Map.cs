@@ -1,11 +1,28 @@
+using System.Text;
+
 namespace _06;
 
 public class Map(char[][] input)
 {
     public static Map FromString(string input)
     {
-        var lines = input.Replace(" ", "").Split("\n");
-        return new Map(lines.Select(line => line.ToCharArray()).ToArray());
+        var lines = new List<char[]>();
+
+        using (var reader = new StringReader(input))
+        {
+            while (reader.ReadLine() is { } line)
+            {
+                var chars = new List<char>();
+                foreach (var ch in line)
+                {
+                    if (ch != ' ') // Leerzeichen überspringen
+                        chars.Add(ch);
+                }
+                lines.Add(chars.ToArray());
+            }
+        }
+
+        return new Map(lines.ToArray());
     }
 
     public Position? Find(char ch)
@@ -51,7 +68,17 @@ public class Map(char[][] input)
 
     public override string ToString()
     {
-        var lines = input.Select(line => string.Join("", line.Select(ch => ch.ToString())));
-        return string.Join("\r\n", lines);
+        var sb = new StringBuilder();
+        foreach (var line in input)
+        {
+            sb.Append(line); // char[] direkt anhängen
+            sb.Append("\r\n"); // Zeilenumbruch anhängen
+        }
+        if (sb.Length >= 2)
+        {
+            sb.Length -= 2; // Entfernt das letzte "\r\n" (optional, je nach Anforderung)
+        }
+
+        return sb.ToString();
     }
 }
