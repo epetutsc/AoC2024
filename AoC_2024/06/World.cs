@@ -7,11 +7,13 @@ public class World
 
     private readonly HashSet<(Position Position, char Direction)> _trace = new();
     private readonly HashSet<Position> _obstructions = new();
-    
+    private readonly (Position Position, char Direction) _start;
+
     public World(string input)
     {
         Map = Map.FromString(input);
         Guard = new Guard(Map);
+        _start = (Guard.Position, Guard.Direction);
     }
 
     private World(string input, Position guardPosition, char direction)
@@ -49,15 +51,14 @@ public class World
 
     private void AddObstruction()
     {
-        var clone = new World(Map.ToString(), Guard.Position, Guard.Direction);
-        var nextField = clone.Guard.PeekMove();
+        var clone = new World(Map.ToString(), _start.Position, _start.Direction);
+        var nextField = Guard.PeekMove();
         if (clone.Map.IsOutOfBounds(nextField))
         {
             return;
         }
         
         clone.Map.Set(nextField, '#');
-        clone.Guard.Turn();
         if (clone.RunScout())
         {
             _obstructions.Add(nextField);
