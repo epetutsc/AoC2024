@@ -22,7 +22,7 @@ public class AntinodesTests
             """;
 
         var matrix = InputReader.FromString(input);
-        var antinodes = new Antinodes(matrix);
+        var antinodes = new Antinodes(matrix, isPart2: false);
         var result = antinodes.Find().ToList();
         result.Should().Contain(new Point(3, 1));
         result.Should().Contain(new Point(6, 7));
@@ -48,9 +48,34 @@ public class AntinodesTests
                              """;
 
         var matrix = InputReader.FromString(input);
-        var antinodes = new Antinodes(matrix);
+        var antinodes = new Antinodes(matrix, isPart2: false);
         var result = antinodes.Find().ToList();
         var plot = antinodes.Plot(result);
         result.Should().HaveCount(14);
+    }
+    
+    [Fact]
+    public void Antinodes_extended_test_part2()
+    {
+        const string input = """
+                             ............
+                             ........0...
+                             .....0......
+                             .......0....
+                             ....0.......
+                             ......A.....
+                             ............
+                             ............
+                             ........A...
+                             .........A..
+                             ............
+                             ............
+                             """;
+
+        var matrix = InputReader.FromString(input);
+        var antinodes = new Antinodes(matrix, isPart2: true);
+        var result = antinodes.Find().ToList();
+        var plot = antinodes.Plot(result);
+        result.Should().HaveCount(34);
     }
 }
