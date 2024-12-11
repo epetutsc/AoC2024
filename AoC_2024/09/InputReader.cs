@@ -1,11 +1,17 @@
 ﻿using System.IO.Abstractions;
+using System.Text.RegularExpressions;
 
 namespace _09;
 
-public class InputReader(IFileSystem fileSystem)
+public partial class InputReader(IFileSystem fileSystem)
 {
+
+    [GeneratedRegex(@"\D")]
+    private static partial Regex DigitsOnly();
+
     public async Task<string> ReadFileAsync(string file)
     {
-        return (await fileSystem.File.ReadAllTextAsync(file)).Trim();
+        var content = (await fileSystem.File.ReadAllTextAsync(file));
+        return DigitsOnly().Replace(content, "");
     }
 }
