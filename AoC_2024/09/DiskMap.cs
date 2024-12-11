@@ -6,7 +6,7 @@ public class DiskMap(string input)
 {
     public long Checksum()
     {
-        var result = 0;
+        var result = 0L;
         var diskMap = Compact();
         for (var i = 0; i < diskMap.Length; i++)
         {
