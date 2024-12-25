@@ -11,27 +11,30 @@ public class Machine
     public Point B { get; set; } = new();
     public Point Prize { get; set; } = new();
 
-    public Point? MoveToPrize()
+    public Result? MoveToPrize()
     {
-        var stepsPerTokenA = A.X / TokensA + A.Y / TokensA;
-        var stepsPerTokenB = B.X / TokensB + B.Y / TokensB;
+        var maxA = Math.Min(Prize.X / A.X + 1, Prize.Y / A.Y + 1);
+        var maxB = Math.Min(Prize.X / B.X + 1, Prize.Y / B.Y + 1);
 
-        var countX = 0;
-        var countY = 0;
-
-        if (stepsPerTokenA > stepsPerTokenB)
+        var results = new List<Result>();
+        for (var countA = 0; countA <= maxA; countA++)
         {
-            countX = Prize.X / A.X;
-            for (var i = countX; i >= 0; i--)
+            for (var countB = 0; countB <= maxB; countB++)
             {
-                var remainder = Prize.X - A.X * i;
-                if (remainder % A.Y == 0)
+                var pos = new Point(countA * A.X, countA * A.Y);
+                pos += new Size(countB * B.X, countB * B.Y);
+                if (pos.X == Prize.X && pos.Y == Prize.Y)
                 {
-                    countY = remainder / A.Y;
-                    break;
+                    results.Add(new Result(countA, countB));
                 }
             }
-
         }
+
+        if (results.Count == 0)
+        {
+            return null;
+        }
+
+        return results.MinBy(r => r.TotalTokens);
     }
 }
